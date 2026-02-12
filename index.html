@@ -1,30 +1,30 @@
-<div class="slot-machine">
-      <div class="header">
-        <h1>Classic Slots</h1>
-        <p class="balance">Balance: $1000</p>
-      </div>
-      <div class="reels-container">
-        <div class="reel">
-          <div class="symbol">🍒</div>
-          <div class="symbol">🔔</div>
-          <div class="symbol">🍋</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Slots</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="slot-machine">
+        <div class="header">
+            <h1>Classic Slots</h1>
+            <p class="balance">Balance: $1000</p>
         </div>
-        <div class="reel">
-          <div class="symbol">🍒</div>
-          <div class="symbol">🔔</div>
-          <div class="symbol">🍋</div>
+        <div class="reels-container">
+            <div class="reel" id="reel-0"></div>
+            <div class="reel" id="reel-1"></div>
+            <div class="reel" id="reel-2"></div>
         </div>
-        <div class="reel">
-          <div class="symbol">🍒</div>
-          <div class="symbol">🔔</div>
-          <div class="symbol">🍋</div>
+        <div class="controls">
+            <button class="btn btn-primary spin_btn">SPIN</button>
+            <p class="message">Good Luck!</p>
         </div>
-      </div>
-      <div class="controls">
-        <button class="btn btn-primary spin_btn">SPIN</button>
-        <p class="message">Good Luck!</p>
-      </div>
 
-      <audio id="reelSound" src="https://essykings.github.io/JavaScript/wheel.wav"></audio>
-      <audio id="winSound" src="https://essykings.github.io/JavaScript/payout.mp3"></audio>
+        <audio id="reelSound" src="https://essykings.github.io" loop></audio>
+        <audio id="winSound" src="https://essykings.github.io"></audio>
     </div>
+    <script src="script.js"></script>
+</body>
+</html>
