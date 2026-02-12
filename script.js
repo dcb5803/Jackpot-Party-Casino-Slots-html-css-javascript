@@ -1,90 +1,87 @@
 const reels = document.querySelectorAll(".reel");
 const spinButton = document.querySelector(".spin_btn");
 const messageDisplay = document.querySelector(".message");
+const balanceDisplay = document.querySelector(".balance");
 const reelSound = document.getElementById("reelSound");
 const winSound = document.getElementById("winSound");
 
-const symbols = ["🍒", "🔔", "🍋", "🍉", "⭐", "7️⃣", "🍊", "🍓", "🍈", "🍍"];
-
-let reelStates = [
-  ["🍒", "🍒", "🍒", "🍋", "🍋", "🍉"],
-  ["🍒", "🍋", "🍋", "🍉", "🍒", "7️⃣"],
-  ["🍒", "7️⃣", "🍋", "🍒", "🍓", "🍋"]
-];
-
-let spinning = false;
 let balance = 1000;
 let betAmount = 10;
+let spinning = false;
 
-function updateBalanceDisplay() {
-  const balanceDisplay = document.querySelector(".balance");
-  balanceDisplay.textContent = `Balance: $${balance}`;
+// Initial state for each reel
+let reelStates = [
+    ["🍒", "🔔", "🍋", "🍉", "⭐", "7️⃣"],
+    ["7️⃣", "🍒", "🔔", "🍋", "🍉", "⭐"],
+    ["⭐", "7️⃣", "🍒", "🔔", "🍋", "🍉"]
+];
+
+function initReels() {
+    reels.forEach((reel, i) => updateReelDOM(reel, i));
 }
 
-function placeBet() {
-  if (balance >= betAmount) {
-    balance -= betAmount;
-    updateBalanceDisplay();
-    spinReels();
-  } else {
-    alert("Not enough balance to place a bet!");
-  }
-}
-
-spinButton.addEventListener("click", placeBet);
-
-function spinReels() {
-  if (spinning) return;
-  spinning = true;
-  reelSound.play();
-  messageDisplay.textContent = "Spinning.........";
-  reels.forEach((reel, index) => {
-    setTimeout(() => {
-      spinReel(reel, index);
-    }, index * 500);
-  });
-}
-
-function spinReel(reel, index) {
-  const spinCount = 10 + Math.floor(Math.random() * 5);
-  let currentSpin = 0;
-  console.log(spinCount);
-  const interval = setInterval(() => {
-    reelStates[index].unshift(reelStates[index].pop());
+function updateReelDOM(reel, index) {
     reel.innerHTML = "";
-    reelStates[index].forEach((symbol) => {
-      const symbolDiv = document.createElement("div");
-      symbolDiv.classList.add("symbol");
-      symbolDiv.textContent = symbol;
-      reel.appendChild(symbolDiv);
+    reelStates[index].forEach(symbol => {
+        const div = document.createElement("div");
+        div.className = "symbol";
+        div.textContent = symbol;
+        reel.appendChild(div);
     });
-    currentSpin++;
-    if (currentSpin >= spinCount) {
-      clearInterval(interval);
-      if (index === reels.length - 1) {
-        spinning = false;
-        reelSound.pause();
-        reelSound.currentTime = 0;
-        checkWin();
-      }
+}
+
+function spin() {
+    if (spinning || balance < betAmount) {
+        if (balance < betAmount) alert("Refill your wallet!");
+        return;
     }
-  }, 50 + index * 50);
+
+    spinning = true;
+    balance -= betAmount;
+    balanceDisplay.textContent = `Balance: $${balance}`;
+    messageDisplay.textContent = "Spinning...";
+    reelSound.play();
+
+    reels.forEach((reel, i) => {
+        let currentSpin = 0;
+        const totalSpins = 15 + Math.floor(Math.random() * 10);
+        
+        const interval = setInterval(() => {
+            // Cycle the array
+            reelStates[i].push(reelStates[i].shift());
+            updateReelDOM(reel, i);
+            currentSpin++;
+
+            if (currentSpin >= totalSpins) {
+                clearInterval(interval);
+                if (i === reels.length - 1) finishSpin();
+            }
+        }, 60 + (i * 30)); // Each reel spins slightly slower
+    });
+}
+
+function finishSpin() {
+    spinning = false;
+    reelSound.pause();
+    reelSound.currentTime = 0;
+    checkWin();
 }
 
 function checkWin() {
-  const [reel1, reel2, reel3] = reelStates.map((reel) => reel[0]);
-  const [reel4, reel5, reel6] = reelStates.map((reel) => reel[1]);
+    // We check Index 1 because it's the middle symbol in our 210px (3-symbol) reel
+    const results = reelStates.map(reel => reel[1]);
+    const isMatch = results[0] === results[1] && results[1] === results[2];
 
-  if (
-    (reel1 === reel2 && reel2 === reel3) ||
-    (reel4 === reel5 && reel5 === reel6)
-  ) {
-    const payout = betAmount * 5;
-    balance += payout;
-    winSound.play();
-    messageDisplay.textContent = " ";
-  } else {
-    messageDisplay.textContent = " Try Again";
-  }
-  updateBalanceDisplay();
+    if (isMatch) {
+        const prize = betAmount * 10;
+        balance += prize;
+        winSound.play();
+        messageDisplay.textContent = `WINNER! +$${prize}`;
+    } else {
+        messageDisplay.textContent = "Try Again!";
+    }
+    balanceDisplay.textContent = `Balance: $${balance}`;
 }
+
+spinButton.addEventListener("click", spin);
+initReels();
